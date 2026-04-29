@@ -1,233 +1,224 @@
-# Nexus Omni 4WD - ROS2 Navigation System (A* + SLAM Toolbox + Pure Pursuit)
+# 🚀 Nexus Omni 4WD - ROS2 Humble Navigation System (SLAM + A* + Pure Pursuit)
 
-Sistem ini adalah implementasi lengkap navigasi robot omni 4WD berbasis **ROS 2 Humble** dengan simulasi **Gazebo Classic**, menggunakan pipeline custom:
+## 📌 Project Overview
 
-* SLAM (slam_toolbox)
-* Global Planner (A* Algorithm)
-* Local Controller (Pure Pursuit + Obstacle Avoidance)
-* RViz2 Visualization
+Project ini adalah simulasi sistem navigasi robot **omni 4WD** menggunakan **ROS 2 Humble** dan **Gazebo Classic** pada lingkungan indoor (8m x 8m). Sistem ini dirancang sebagai pipeline navigasi lengkap yang terdiri dari:
+
+* **SLAM (slam_toolbox)** → pembuatan peta secara real-time
+* **A* Path Planning** → perencanaan jalur global
+* **Pure Pursuit Controller** → tracking jalur
+* **Obstacle Avoidance berbasis LiDAR** → keamanan navigasi
+* **RViz2 Visualization** → monitoring dan kontrol interaktif
+
+🎯 Tujuan proyek ini adalah memberikan implementasi navigasi robot yang ringan, modular, dan mudah dipahami tanpa menggunakan stack Nav2 penuh.
 
 ---
 
-# 1. Gambaran Sistem (Arsitektur)
+# 🧠 System Architecture
 
 ```
-                +-------------------+
-                |   Gazebo World    |
-                +-------------------+
-                          |
-                        LiDAR
-                          |
-                +-------------------+
-                |  slam_toolbox     |
-                |  (Mapping /map)   |
-                +-------------------+
-                          |
-                          v
-                +-------------------+
-                |   A* Planner      |
-                |   (/path)         |
-                +-------------------+
-                          |
-                          v
-                +---------------------------+
-                |  Path Follower (Core)     |
-                |  Pure Pursuit + Safety    |
-                +---------------------------+
-                          |
-                          v
-                    /cmd_vel (Robot)
+Gazebo Classic (World Simulation)
+        ↓
+   LiDAR Sensor
+        ↓
+slam_toolbox (Mapping /map)
+        ↓
+   A* Planner (Global Path /path)
+        ↓
+ Path Follower Node
+ (Pure Pursuit + Safety Layer)
+        ↓
+     /cmd_vel
+        ↓
+   Robot Omni 4WD
 ```
 
 ---
 
-# 2. Spesifikasi Sistem
+# 💻 System Requirements
 
-## Robot
+## 🖥️ OS
 
-* Omni 4WD
-* Radius robot: **0.16 m**
-* Safety margin: **0.05 m**
-* Inflation radius: **0.21 m**
+* Ubuntu 22.04 LTS (recommended)
 
-## Map
+## 🤖 ROS2
 
-* Resolution: **0.07 m/cell**
-* Obstacle threshold: **65**
-* Environment: Indoor 8m x 8m (Gazebo Classic)
+* ROS2 Humble
 
----
+## 🎮 Simulator
 
-# 3. Requirement System
-
-## OS
-
-* Ubuntu 22.04 / 24.04
-* ROS 2 Humble
 * Gazebo Classic (gazebo11)
 
-## Install Dependencies
+## 📦 Dependencies
+
+Install dependencies berikut:
 
 ```bash
 sudo apt update
 sudo apt install -y \
 ros-humble-rviz2 \
 ros-humble-slam-toolbox \
-ros-humble-navigation2 \
 ros-humble-nav-msgs \
-ros-humble-geometry-msgs
+ros-humble-geometry-msgs \
+ros-humble-tf2-ros \
+python3-colcon-common-extensions \
+git
 ```
 
 ---
 
-# 4. Workspace Setup
+# 📁 Project Structure (Assumption Standard ROS2 Workspace)
+
+```
+astar_ws/
+ ├── src/
+ │   ├── gazebo_sim/
+ │   │    ├── world/
+ │   │    ├── launch/
+ │   │    ├── config/
+ │   │
+ │   ├── robot_controller/
+ │        ├── astar_planner.py
+ │        ├── path_follower.py
+ │        ├── rviz.launch.py
+```
+
+---
+
+# ⚙️ Installation Guide (Step-by-Step)
+
+## 1. Buat Workspace ROS2
 
 ```bash
 mkdir -p ~/astar_ws/src
 cd ~/astar_ws/src
 ```
 
-Clone project:
+## 2. Clone Project
 
 ```bash
-git clone <repo-kamu>
+git clone <repo-anda>
 ```
 
-Build:
+## 3. Install Dependency ROS2
 
 ```bash
 cd ~/astar_ws
+rosdep install --from-paths src --ignore-src -r -y
+```
+
+## 4. Build Workspace
+
+```bash
 colcon build --symlink-install
+```
+
+## 5. Source Workspace
+
+```bash
 source install/setup.bash
 ```
 
----
+👉 Tambahkan ke bashrc agar otomatis:
 
-# 5. Struktur Package
-
-```
-robot_controller/
- ├── astar_planner.py
- ├── path_follower.py
- ├── rviz.launch.py
-gazebo_sim/
- ├── world/indoor_obstacles.world
- ├── launch/sim.launch.py
- ├── config/slam.yaml
+```bash
+echo "source ~/astar_ws/install/setup.bash" >> ~/.bashrc
+source ~/.bashrc
 ```
 
 ---
 
-# 6. Cara Menjalankan (MANUAL MODE)
+# 🚀 Cara Menjalankan Sistem
 
-## 6.1 Launch Gazebo
+## 🧩 1. Jalankan Gazebo Simulation
 
 ```bash
 ros2 launch gazebo_sim sim.launch.py
 ```
 
-## 6.2 Jalankan SLAM
+Menampilkan:
+
+* World indoor 8x8 meter
+* Obstacle (sofa, meja, kursi, dll)
+* Robot omni 4WD
+
+---
+
+## 🗺️ 2. Jalankan SLAM Toolbox
 
 ```bash
 ros2 launch slam_toolbox online_async_launch.py \
-params_file:=~/astar_ws/src/gazebo_sim/config/slam.yaml
+params_file:=src/gazebo_sim/config/slam.yaml
 ```
 
-## 6.3 Jalankan RViz
+Fungsi:
 
-```bash
-ros2 launch robot_controller rviz.launch.py
-```
+* Membuat peta real-time
+* Publish `/map`
 
-## 6.4 Jalankan A* Planner
+---
+
+## 🧭 3. Jalankan A* Planner
 
 ```bash
 ros2 run robot_controller astar_planner
 ```
 
-## 6.5 Jalankan Path Follower
+Fungsi:
+
+* Menerima goal dari RViz2
+* Menghasilkan path (`/path`)
+
+---
+
+## 🤖 4. Jalankan Path Follower
 
 ```bash
 ros2 run robot_controller path_follower
 ```
 
----
+Fungsi:
 
-# 7. Cara Menggunakan Robot
-
-1. Buka RViz2
-2. Klik **2D Pose Estimate** (posisi awal robot)
-3. Klik **2D Nav Goal** (1 atau 2 titik)
-4. Sistem akan otomatis:
-
-   * Generate map (SLAM)
-   * Hitung path (A*)
-   * Follow path (Pure Pursuit)
-   * Stop di goal
+* Pure Pursuit tracking
+* Obstacle avoidance (LiDAR)
+* Control `/cmd_vel`
 
 ---
 
-# 8. AUTO LAUNCH (REKOMENDASI)
-
-Buat file:
-
-```
-launch/full_system.launch.py
-```
-
-Isi:
-
-```python
-from launch import LaunchDescription
-from launch_ros.actions import Node
-
-def generate_launch_description():
-
-    return LaunchDescription([
-
-        Node(
-            package='gazebo_sim',
-            executable='gazebo_world',
-            output='screen'
-        ),
-
-        Node(
-            package='slam_toolbox',
-            executable='sync_slam_toolbox_node',
-            output='screen'
-        ),
-
-        Node(
-            package='robot_controller',
-            executable='astar_planner',
-            output='screen'
-        ),
-
-        Node(
-            package='robot_controller',
-            executable='path_follower',
-            output='screen'
-        ),
-
-        Node(
-            package='rviz2',
-            executable='rviz2',
-            output='screen'
-        ),
-    ])
-```
-
-Run:
+## 👁️ 5. Jalankan RViz2
 
 ```bash
-ros2 launch robot_controller full_system.launch.py
+ros2 launch robot_controller rviz.launch.py
 ```
+
+Gunakan RViz untuk:
+
+* 2D Pose Estimate
+* 2D Nav Goal
+* Visualisasi path & map
 
 ---
 
-# 9. Parameter Tuning Penting
+# 🎮 Cara Menggunakan Sistem
 
-## Path Following
+1. Jalankan semua node (Gazebo + SLAM + Planner + Follower + RViz)
+2. Di RViz:
+
+   * Set **2D Pose Estimate** (posisi awal robot)
+   * Klik **2D Nav Goal** (target tujuan)
+3. Sistem akan otomatis:
+
+   * Membuat map
+   * Menghitung path (A*)
+   * Mengikuti path (Pure Pursuit)
+   * Menghindari obstacle
+   * Stop saat mencapai goal
+
+---
+
+# ⚙️ Parameter Penting (Tuning)
+
+## 🚗 Motion Control
 
 ```python
 LOOKAHEAD_DIST = 0.7
@@ -235,7 +226,7 @@ GOAL_REACH_DIST = 0.25
 CMD_SMOOTHING = 0.2
 ```
 
-## Obstacle Avoidance
+## 🛑 Safety System
 
 ```python
 STOP_DISTANCE = 0.25
@@ -243,7 +234,7 @@ SLOW_DISTANCE = 0.5
 CRITICAL_DISTANCE = 0.15
 ```
 
-## Velocity
+## ⚡ Velocity Limit
 
 ```python
 MAX_LINEAR_VEL = 0.4
@@ -253,54 +244,59 @@ MAX_ANGULAR_VEL = 0.8
 
 ---
 
-# 10. Troubleshooting
+# 🧯 Troubleshooting
 
-## Robot tidak jalan setelah goal
+## ❌ Robot tidak bergerak
 
-* cek `/path` kosong atau tidak
-* cek astar planner aktif
+* Pastikan `/cmd_vel` aktif
+* Cek `/path` dari A* planner
 
-## Robot goyang di target
+## ❌ Gazebo tidak muncul
 
-* naikkan GOAL_REACH_DIST → 0.25 - 0.3
-* reset prev_cmd saat goal
+```bash
+killall gzserver gzclient
+```
 
-## Gerakan patah-patah
+## ❌ Build error ROS2
 
-* turunkan CMD_SMOOTHING → 0.1
-* naikkan timer ke 0.02s
+```bash
+rm -rf build install log
+colcon build --symlink-install
+```
 
-## Robot terlalu sensitif obstacle
+## ❌ SLAM tidak jalan
 
-* cek LiDAR noise
-* kecilkan CRITICAL_DISTANCE
-
----
-
-# 11. Optimasi Sistem
-
-* Jalankan Gazebo dengan RTF > 0.9
-* Pisahkan terminal (SLAM / planner / follower)
-* Gunakan RViz tanpa plugin berat
+* Pastikan LiDAR topic `/scan` aktif
 
 ---
 
-# 12. Catatan Penting
+# 📌 Notes & Best Practices
 
-Sistem ini **tidak menggunakan Nav2 penuh**, tetapi pipeline custom:
+* Selalu source workspace sebelum run:
 
-* SLAM Toolbox → Mapping
-* A* → Global Planning
-* Pure Pursuit → Local Control
+```bash
+source ~/astar_ws/install/setup.bash
+```
 
-Keuntungan:
-
-* lebih ringan
-* mudah dimodifikasi
-* cocok untuk riset & skripsi
+* Jalankan node di terminal terpisah untuk debugging
+* Gunakan Gazebo Classic dengan performa stabil (RTF > 0.9)
+* Jangan jalankan semua node dalam satu terminal
 
 ---
 
-# Author
+# 🔬 Keunggulan Sistem Ini
 
-Nexus Omni Navigation System - ROS2 Humble + Gazebo Classic
+* Tidak menggunakan Nav2 (lebih ringan & modular)
+* Mudah dimodifikasi untuk penelitian
+* Cocok untuk:
+
+  * Skripsi
+  * Riset robotika
+  * Simulasi autonomous navigation
+
+---
+
+# 👨‍💻 Author
+
+Nexus Omni Robotics System
+ROS2 Humble + Gazebo Classic Implementation
