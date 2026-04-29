@@ -1,0 +1,4 @@
+[console_scripts]
+omni_kinematics = robot_controller.omni_kinematics:main
+path_follower = robot_controller.path_follower:main
+

@@ -1,0 +1,22 @@
+[1.170s] Invoking command in '/home/ronnigm/astar_ws/src/robot_controller': PYTHONPATH=/home/ronnigm/astar_ws/build/robot_controller/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/ronnigm/astar_ws/install/robot_controller/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../build/robot_controller build --build-base /home/ronnigm/astar_ws/build/robot_controller/build install --record /home/ronnigm/astar_ws/build/robot_controller/install.log --single-version-externally-managed install_data
+[1.368s] running egg_info
+[1.369s] writing ../../build/robot_controller/robot_controller.egg-info/PKG-INFO
+[1.369s] writing dependency_links to ../../build/robot_controller/robot_controller.egg-info/dependency_links.txt
+[1.369s] writing entry points to ../../build/robot_controller/robot_controller.egg-info/entry_points.txt
+[1.369s] writing requirements to ../../build/robot_controller/robot_controller.egg-info/requires.txt
+[1.369s] writing top-level names to ../../build/robot_controller/robot_controller.egg-info/top_level.txt
+[1.371s] reading manifest file '../../build/robot_controller/robot_controller.egg-info/SOURCES.txt'
+[1.371s] writing manifest file '../../build/robot_controller/robot_controller.egg-info/SOURCES.txt'
+[1.371s] running build
+[1.371s] running build_py
+[1.371s] running install
+[1.372s] running install_lib
+[1.373s] running install_data
+[1.373s] running install_egg_info
+[1.374s] removing '/home/ronnigm/astar_ws/install/robot_controller/lib/python3.10/site-packages/robot_controller-0.0.0-py3.10.egg-info' (and everything under it)
+[1.374s] Copying ../../build/robot_controller/robot_controller.egg-info to /home/ronnigm/astar_ws/install/robot_controller/lib/python3.10/site-packages/robot_controller-0.0.0-py3.10.egg-info
+[1.375s] running install_scripts
+[1.391s] Installing omni_kinematics script to /home/ronnigm/astar_ws/install/robot_controller/lib/robot_controller
+[1.391s] Installing path_follower script to /home/ronnigm/astar_ws/install/robot_controller/lib/robot_controller
+[1.391s] writing list of installed files to '/home/ronnigm/astar_ws/build/robot_controller/install.log'
+[1.415s] Invoked command in '/home/ronnigm/astar_ws/src/robot_controller' returned '0': PYTHONPATH=/home/ronnigm/astar_ws/build/robot_controller/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/ronnigm/astar_ws/install/robot_controller/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../build/robot_controller build --build-base /home/ronnigm/astar_ws/build/robot_controller/build install --record /home/ronnigm/astar_ws/build/robot_controller/install.log --single-version-externally-managed install_data

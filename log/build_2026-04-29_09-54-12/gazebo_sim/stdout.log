@@ -1,0 +1,43 @@
+running egg_info
+creating ../../build/gazebo_sim/gazebo_sim.egg-info
+writing ../../build/gazebo_sim/gazebo_sim.egg-info/PKG-INFO
+writing dependency_links to ../../build/gazebo_sim/gazebo_sim.egg-info/dependency_links.txt
+writing entry points to ../../build/gazebo_sim/gazebo_sim.egg-info/entry_points.txt
+writing requirements to ../../build/gazebo_sim/gazebo_sim.egg-info/requires.txt
+writing top-level names to ../../build/gazebo_sim/gazebo_sim.egg-info/top_level.txt
+writing manifest file '../../build/gazebo_sim/gazebo_sim.egg-info/SOURCES.txt'
+reading manifest file '../../build/gazebo_sim/gazebo_sim.egg-info/SOURCES.txt'
+writing manifest file '../../build/gazebo_sim/gazebo_sim.egg-info/SOURCES.txt'
+running build
+running build_py
+creating /home/ronnigm/astar_ws/build/gazebo_sim/build
+creating /home/ronnigm/astar_ws/build/gazebo_sim/build/lib
+creating /home/ronnigm/astar_ws/build/gazebo_sim/build/lib/gazebo_sim
+copying gazebo_sim/__init__.py -> /home/ronnigm/astar_ws/build/gazebo_sim/build/lib/gazebo_sim
+running install
+running install_lib
+creating /home/ronnigm/astar_ws/install/gazebo_sim/lib/python3.10/site-packages/gazebo_sim
+copying /home/ronnigm/astar_ws/build/gazebo_sim/build/lib/gazebo_sim/__init__.py -> /home/ronnigm/astar_ws/install/gazebo_sim/lib/python3.10/site-packages/gazebo_sim
+byte-compiling /home/ronnigm/astar_ws/install/gazebo_sim/lib/python3.10/site-packages/gazebo_sim/__init__.py to __init__.cpython-310.pyc
+running install_data
+creating /home/ronnigm/astar_ws/install/gazebo_sim/share/ament_index
+creating /home/ronnigm/astar_ws/install/gazebo_sim/share/ament_index/resource_index
+creating /home/ronnigm/astar_ws/install/gazebo_sim/share/ament_index/resource_index/packages
+copying resource/gazebo_sim -> /home/ronnigm/astar_ws/install/gazebo_sim/share/ament_index/resource_index/packages
+copying package.xml -> /home/ronnigm/astar_ws/install/gazebo_sim/share/gazebo_sim
+creating /home/ronnigm/astar_ws/install/gazebo_sim/share/gazebo_sim/worlds
+copying worlds/nexus.world -> /home/ronnigm/astar_ws/install/gazebo_sim/share/gazebo_sim/worlds
+copying worlds/indoor_obstacles.world -> /home/ronnigm/astar_ws/install/gazebo_sim/share/gazebo_sim/worlds
+creating /home/ronnigm/astar_ws/install/gazebo_sim/share/gazebo_sim/maps
+copying maps/indoor_obstacles.yaml -> /home/ronnigm/astar_ws/install/gazebo_sim/share/gazebo_sim/maps
+copying maps/map.yaml -> /home/ronnigm/astar_ws/install/gazebo_sim/share/gazebo_sim/maps
+copying maps/map.pgm -> /home/ronnigm/astar_ws/install/gazebo_sim/share/gazebo_sim/maps
+copying maps/indoor_obstacles.pgm -> /home/ronnigm/astar_ws/install/gazebo_sim/share/gazebo_sim/maps
+creating /home/ronnigm/astar_ws/install/gazebo_sim/share/gazebo_sim/launch
+copying launch/sim.launch.py -> /home/ronnigm/astar_ws/install/gazebo_sim/share/gazebo_sim/launch
+copying launch/nav.launch.py -> /home/ronnigm/astar_ws/install/gazebo_sim/share/gazebo_sim/launch
+copying launch/rviz.launch.py -> /home/ronnigm/astar_ws/install/gazebo_sim/share/gazebo_sim/launch
+running install_egg_info
+Copying ../../build/gazebo_sim/gazebo_sim.egg-info to /home/ronnigm/astar_ws/install/gazebo_sim/lib/python3.10/site-packages/gazebo_sim-0.0.1-py3.10.egg-info
+running install_scripts
+writing list of installed files to '/home/ronnigm/astar_ws/build/gazebo_sim/install.log'

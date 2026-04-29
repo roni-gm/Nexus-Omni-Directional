@@ -1,0 +1,45 @@
+[1.160s] Invoking command in '/home/ronnigm/astar_ws/src/gazebo_sim': PYTHONPATH=/home/ronnigm/astar_ws/build/gazebo_sim/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/ronnigm/astar_ws/install/gazebo_sim/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../build/gazebo_sim build --build-base /home/ronnigm/astar_ws/build/gazebo_sim/build install --record /home/ronnigm/astar_ws/build/gazebo_sim/install.log --single-version-externally-managed install_data
+[1.365s] running egg_info
+[1.365s] creating ../../build/gazebo_sim/gazebo_sim.egg-info
+[1.365s] writing ../../build/gazebo_sim/gazebo_sim.egg-info/PKG-INFO
+[1.366s] writing dependency_links to ../../build/gazebo_sim/gazebo_sim.egg-info/dependency_links.txt
+[1.366s] writing entry points to ../../build/gazebo_sim/gazebo_sim.egg-info/entry_points.txt
+[1.366s] writing requirements to ../../build/gazebo_sim/gazebo_sim.egg-info/requires.txt
+[1.366s] writing top-level names to ../../build/gazebo_sim/gazebo_sim.egg-info/top_level.txt
+[1.366s] writing manifest file '../../build/gazebo_sim/gazebo_sim.egg-info/SOURCES.txt'
+[1.368s] reading manifest file '../../build/gazebo_sim/gazebo_sim.egg-info/SOURCES.txt'
+[1.368s] writing manifest file '../../build/gazebo_sim/gazebo_sim.egg-info/SOURCES.txt'
+[1.368s] running build
+[1.368s] running build_py
+[1.369s] creating /home/ronnigm/astar_ws/build/gazebo_sim/build
+[1.369s] creating /home/ronnigm/astar_ws/build/gazebo_sim/build/lib
+[1.369s] creating /home/ronnigm/astar_ws/build/gazebo_sim/build/lib/gazebo_sim
+[1.369s] copying gazebo_sim/__init__.py -> /home/ronnigm/astar_ws/build/gazebo_sim/build/lib/gazebo_sim
+[1.369s] running install
+[1.369s] running install_lib
+[1.370s] creating /home/ronnigm/astar_ws/install/gazebo_sim/lib/python3.10/site-packages/gazebo_sim
+[1.370s] copying /home/ronnigm/astar_ws/build/gazebo_sim/build/lib/gazebo_sim/__init__.py -> /home/ronnigm/astar_ws/install/gazebo_sim/lib/python3.10/site-packages/gazebo_sim
+[1.370s] byte-compiling /home/ronnigm/astar_ws/install/gazebo_sim/lib/python3.10/site-packages/gazebo_sim/__init__.py to __init__.cpython-310.pyc
+[1.371s] running install_data
+[1.371s] creating /home/ronnigm/astar_ws/install/gazebo_sim/share/ament_index
+[1.371s] creating /home/ronnigm/astar_ws/install/gazebo_sim/share/ament_index/resource_index
+[1.371s] creating /home/ronnigm/astar_ws/install/gazebo_sim/share/ament_index/resource_index/packages
+[1.371s] copying resource/gazebo_sim -> /home/ronnigm/astar_ws/install/gazebo_sim/share/ament_index/resource_index/packages
+[1.371s] copying package.xml -> /home/ronnigm/astar_ws/install/gazebo_sim/share/gazebo_sim
+[1.371s] creating /home/ronnigm/astar_ws/install/gazebo_sim/share/gazebo_sim/worlds
+[1.371s] copying worlds/nexus.world -> /home/ronnigm/astar_ws/install/gazebo_sim/share/gazebo_sim/worlds
+[1.371s] copying worlds/indoor_obstacles.world -> /home/ronnigm/astar_ws/install/gazebo_sim/share/gazebo_sim/worlds
+[1.371s] creating /home/ronnigm/astar_ws/install/gazebo_sim/share/gazebo_sim/maps
+[1.371s] copying maps/indoor_obstacles.yaml -> /home/ronnigm/astar_ws/install/gazebo_sim/share/gazebo_sim/maps
+[1.371s] copying maps/map.yaml -> /home/ronnigm/astar_ws/install/gazebo_sim/share/gazebo_sim/maps
+[1.372s] copying maps/map.pgm -> /home/ronnigm/astar_ws/install/gazebo_sim/share/gazebo_sim/maps
+[1.372s] copying maps/indoor_obstacles.pgm -> /home/ronnigm/astar_ws/install/gazebo_sim/share/gazebo_sim/maps
+[1.372s] creating /home/ronnigm/astar_ws/install/gazebo_sim/share/gazebo_sim/launch
+[1.372s] copying launch/sim.launch.py -> /home/ronnigm/astar_ws/install/gazebo_sim/share/gazebo_sim/launch
+[1.372s] copying launch/nav.launch.py -> /home/ronnigm/astar_ws/install/gazebo_sim/share/gazebo_sim/launch
+[1.372s] copying launch/rviz.launch.py -> /home/ronnigm/astar_ws/install/gazebo_sim/share/gazebo_sim/launch
+[1.372s] running install_egg_info
+[1.374s] Copying ../../build/gazebo_sim/gazebo_sim.egg-info to /home/ronnigm/astar_ws/install/gazebo_sim/lib/python3.10/site-packages/gazebo_sim-0.0.1-py3.10.egg-info
+[1.375s] running install_scripts
+[1.394s] writing list of installed files to '/home/ronnigm/astar_ws/build/gazebo_sim/install.log'
+[1.440s] Invoked command in '/home/ronnigm/astar_ws/src/gazebo_sim' returned '0': PYTHONPATH=/home/ronnigm/astar_ws/build/gazebo_sim/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/ronnigm/astar_ws/install/gazebo_sim/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../build/gazebo_sim build --build-base /home/ronnigm/astar_ws/build/gazebo_sim/build install --record /home/ronnigm/astar_ws/build/gazebo_sim/install.log --single-version-externally-managed install_data

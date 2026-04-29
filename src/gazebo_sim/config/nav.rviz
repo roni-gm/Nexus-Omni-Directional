@@ -1,0 +1,49 @@
+Panels:
+  - Class: rviz_common/Displays
+  - Class: rviz_common/Views
+
+Visualization Manager:
+  Class: ""
+  Displays:
+
+    - Class: rviz_default_plugins/Grid
+      Name: Grid
+      Enabled: true
+
+    - Class: rviz_default_plugins/Map
+      Name: Map
+      Topic: /map
+      Enabled: true
+
+    - Class: rviz_default_plugins/RobotModel
+      Name: RobotModel
+      Enabled: true
+
+    - Class: rviz_default_plugins/TF
+      Name: TF
+      Enabled: true
+
+    - Class: rviz_default_plugins/LaserScan
+      Name: Laser
+      Topic: /scan
+      Enabled: true
+
+    - Class: rviz_default_plugins/Path
+      Name: Path
+      Topic: /path
+      Enabled: true
+
+  Global Options:
+    Fixed Frame: map
+
+Tools:
+  - Class: rviz_default_plugins/Interact
+  - Class: rviz_default_plugins/MoveCamera
+  - Class: rviz_default_plugins/Select
+
+  # 🔥 INI PENTING
+  - Class: rviz_default_plugins/SetInitialPose
+    Topic: /initialpose
+
+  - Class: rviz_default_plugins/SetGoal
+    Topic: /goal_pose

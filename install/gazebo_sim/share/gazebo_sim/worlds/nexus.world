@@ -1,0 +1,452 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sdf version="1.6">
+  <world name="omni_navigation_lab">
+    
+    <!-- ==================== DASAR DAN LINGKUNGAN ==================== -->
+    <include>
+      <uri>model://ground_plane</uri>
+    </include>
+    
+    <include>
+      <uri>model://sun</uri>
+    </include>
+    
+    <light type="directional" name="ambient_light">
+      <pose>5 5 10 0 0 0</pose>
+      <diffuse>0.8 0.8 0.8 1</diffuse>
+      <specular>0.5 0.5 0.5 1</specular>
+      <direction>-0.5 -0.5 -1</direction>
+    </light>
+
+    <!-- ==================== DINDING LUAR (8x8 meter) - PROPORSI REALISTIS ==================== -->
+    <!-- Dinding Utara (tebal 0.1, tinggi 1.0) -->
+    <model name="wall_north">
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry>
+            <box>
+              <size>8.0 0.1 1.0</size>
+            </box>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>8.0 0.1 1.0</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.4 0.4 0.4 1</ambient>
+            <diffuse>0.6 0.6 0.6 1</diffuse>
+          </material>
+        </visual>
+        <pose>4.0 4.0 0.5 0 0 0</pose>
+      </link>
+    </model>
+
+    <!-- Dinding Selatan -->
+    <model name="wall_south">
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry>
+            <box>
+              <size>8.0 0.1 1.0</size>
+            </box>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>8.0 0.1 1.0</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.4 0.4 0.4 1</ambient>
+            <diffuse>0.6 0.6 0.6 1</diffuse>
+          </material>
+        </visual>
+        <pose>4.0 -4.0 0.5 0 0 0</pose>
+      </link>
+    </model>
+
+    <!-- Dinding Timur -->
+    <model name="wall_east">
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry>
+            <box>
+              <size>0.1 8.0 1.0</size>
+            </box>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.1 8.0 1.0</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.4 0.4 0.4 1</ambient>
+            <diffuse>0.6 0.6 0.6 1</diffuse>
+          </material>
+        </visual>
+        <pose>8.0 0 0.5 0 0 0</pose>
+      </link>
+    </model>
+
+    <!-- Dinding Barat -->
+    <model name="wall_west">
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry>
+            <box>
+              <size>0.1 8.0 1.0</size>
+            </box>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.1 8.0 1.0</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.4 0.4 0.4 1</ambient>
+            <diffuse>0.6 0.6 0.6 1</diffuse>
+          </material>
+        </visual>
+        <pose>0 0 0.5 0 0 0</pose>
+      </link>
+    </model>
+
+    <!-- ==================== DINDING PEMBAGI BILIK (KOMPARTEMEN) ==================== -->
+    <!-- Dinding vertikal kiri (membagi ruang jadi bilik kiri dan tengah) -->
+    <model name="divider_vertical_left">
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry>
+            <box>
+              <size>0.08 5.0 1.0</size>
+            </box>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.08 5.0 1.0</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.5 0.5 0.7 1</ambient>
+            <diffuse>0.6 0.6 0.8 1</diffuse>
+          </material>
+        </visual>
+        <pose>2.5 0 0.5 0 0 0</pose>
+      </link>
+    </model>
+
+    <!-- Dinding vertikal kanan (dengan celah di tengah untuk akses) -->
+    <model name="divider_vertical_right_top">
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry>
+            <box>
+              <size>0.08 2.0 1.0</size>
+            </box>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.08 2.0 1.0</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.5 0.5 0.7 1</ambient>
+            <diffuse>0.6 0.6 0.8 1</diffuse>
+          </material>
+        </visual>
+        <pose>5.5 1.5 0.5 0 0 0</pose>
+      </link>
+    </model>
+
+    <model name="divider_vertical_right_bottom">
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry>
+            <box>
+              <size>0.08 2.0 1.0</size>
+            </box>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.08 2.0 1.0</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.5 0.5 0.7 1</ambient>
+            <diffuse>0.6 0.6 0.8 1</diffuse>
+          </material>
+        </visual>
+        <pose>5.5 -1.5 0.5 0 0 0</pose>
+      </link>
+    </model>
+
+    <!-- Dinding horizontal pembatas bilik atas -->
+    <model name="divider_horizontal_top">
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry>
+            <box>
+              <size>4.0 0.08 1.0</size>
+            </box>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>4.0 0.08 1.0</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.5 0.5 0.7 1</ambient>
+            <diffuse>0.6 0.6 0.8 1</diffuse>
+          </material>
+        </visual>
+        <pose>3.0 2.8 0.5 0 0 0</pose>
+      </link>
+    </model>
+
+    <!-- Dinding horizontal pembatas bilik bawah -->
+    <model name="divider_horizontal_bottom">
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry>
+            <box>
+              <size>3.5 0.08 1.0</size>
+            </box>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>3.5 0.08 1.0</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.5 0.5 0.7 1</ambient>
+            <diffuse>0.6 0.6 0.8 1</diffuse>
+          </material>
+        </visual>
+        <pose>2.0 -2.8 0.5 0 0 0</pose>
+      </link>
+    </model>
+
+    <!-- ==================== OBSTACLE STATIS BOX ==================== -->
+    <!-- Box obstruction 1: di bilik kiri atas -->
+    <model name="obstacle_box_1">
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry>
+            <box>
+              <size>0.6 0.6 0.5</size>
+            </box>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.6 0.6 0.5</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.8 0.2 0.2 1</ambient>
+            <diffuse>0.9 0.3 0.3 1</diffuse>
+          </material>
+        </visual>
+        <pose>1.2 1.8 0.25 0 0 0</pose>
+      </link>
+    </model>
+
+    <!-- Box obstruction 2: di bilik kanan bawah -->
+    <model name="obstacle_box_2">
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry>
+            <box>
+              <size>0.5 0.8 0.6</size>
+            </box>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.5 0.8 0.6</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.2 0.8 0.2 1</ambient>
+            <diffuse>0.3 0.9 0.3 1</diffuse>
+          </material>
+        </visual>
+        <pose>6.8 -2.2 0.3 0 0 0</pose>
+      </link>
+    </model>
+
+    <!-- Box obstruction 3: di tengah (jauh dari koridor utama) -->
+    <model name="obstacle_box_3">
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry>
+            <box>
+              <size>0.7 0.7 0.4</size>
+            </box>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.7 0.7 0.4</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.2 0.2 0.8 1</ambient>
+            <diffuse>0.3 0.3 0.9 1</diffuse>
+          </material>
+        </visual>
+        <pose>4.0 -1.0 0.2 0 0 0</pose>
+      </link>
+    </model>
+
+    <!-- Box obstruction 4: obstacle memanjang di bilik kiri bawah -->
+    <model name="obstacle_box_4">
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry>
+            <box>
+              <size>1.0 0.4 0.3</size>
+            </box>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>1.0 0.4 0.3</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.8 0.5 0.2 1</ambient>
+            <diffuse>0.9 0.6 0.3 1</diffuse>
+          </material>
+        </visual>
+        <pose>0.8 -2.0 0.15 0 0 0</pose>
+      </link>
+    </model>
+
+    <!-- Box obstruction 5: di dekat dinding timur -->
+    <model name="obstacle_box_5">
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry>
+            <box>
+              <size>0.5 0.5 0.7</size>
+            </box>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.5 0.5 0.7</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.7 0.3 0.7 1</ambient>
+            <diffuse>0.8 0.4 0.8 1</diffuse>
+          </material>
+        </visual>
+        <pose>7.2 0.8 0.35 0 0 0</pose>
+      </link>
+    </model>
+
+    <!-- Box obstruction 6: obstacle kecil di bilik kanan atas -->
+    <model name="obstacle_box_6">
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry>
+            <box>
+              <size>0.4 0.4 0.4</size>
+            </box>
+          </geometry>
+        </collision>
+        <visual name="visual">
+          <geometry>
+            <box>
+              <size>0.4 0.4 0.4</size>
+            </box>
+          </geometry>
+          <material>
+            <ambient>0.4 0.8 0.8 1</ambient>
+            <diffuse>0.5 0.9 0.9 1</diffuse>
+          </material>
+        </visual>
+        <pose>6.5 2.5 0.2 0 0 0</pose>
+      </link>
+    </model>
+
+    <!-- ==================== MARKER VISUAL PUSAT MAP (X=4.0, Y=0.0) ==================== -->
+    <!-- Marker untuk verifikasi spawn robot di tengah -->
+    <model name="center_spawn_marker">
+      <static>true</static>
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <cylinder>
+              <radius>0.25</radius>
+              <length>0.02</length>
+            </cylinder>
+          </geometry>
+          <material>
+            <ambient>0.0 1.0 0.0 0.6</ambient>
+            <diffuse>0.0 1.0 0.0 0.6</diffuse>
+            <transparency>0.4</transparency>
+          </material>
+        </visual>
+        <pose>4.0 0.0 0.01 0 0 0</pose>
+      </link>
+    </model>
+
+    <!-- ==================== VERIFIKASI CLEARANCE ==================== -->
+    <!-- 
+      Koordinat map:
+        - Dinding Barat:  X = 0
+        - Dinding Timur:  X = 8
+        - Dinding Selatan: Y = -4
+        - Dinding Utara:   Y = 4
+        - Pusat map:       X = 4.0, Y = 0.0 (robot spawn disini)
+      
+      Clearance koridor (semua > 2 × robot_radius = 0.44m):
+        - Koridor kiri (X=0 sampai X=2.5): lebar 2.5m ✓
+        - Koridor kanan (X=5.5 sampai X=8): lebar 2.5m ✓
+        - Celah vertikal (Y=-1.5 sampai Y=1.5): lebar 3.0m ✓
+        - Semua jalur antar bilik: minimal 0.5m ✓
+    -->
+
+  </world>
+</sdf>

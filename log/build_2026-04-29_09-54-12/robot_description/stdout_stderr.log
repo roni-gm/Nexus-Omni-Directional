@@ -1,0 +1,50 @@
+running egg_info
+creating ../../build/robot_description/robot_description.egg-info
+writing ../../build/robot_description/robot_description.egg-info/PKG-INFO
+writing dependency_links to ../../build/robot_description/robot_description.egg-info/dependency_links.txt
+writing requirements to ../../build/robot_description/robot_description.egg-info/requires.txt
+writing top-level names to ../../build/robot_description/robot_description.egg-info/top_level.txt
+writing manifest file '../../build/robot_description/robot_description.egg-info/SOURCES.txt'
+reading manifest file '../../build/robot_description/robot_description.egg-info/SOURCES.txt'
+writing manifest file '../../build/robot_description/robot_description.egg-info/SOURCES.txt'
+running build
+running build_py
+creating /home/ronnigm/astar_ws/build/robot_description/build
+creating /home/ronnigm/astar_ws/build/robot_description/build/lib
+creating /home/ronnigm/astar_ws/build/robot_description/build/lib/robot_description
+copying robot_description/__init__.py -> /home/ronnigm/astar_ws/build/robot_description/build/lib/robot_description
+running install
+running install_lib
+creating /home/ronnigm/astar_ws/install/robot_description/lib/python3.10/site-packages/robot_description
+copying /home/ronnigm/astar_ws/build/robot_description/build/lib/robot_description/__init__.py -> /home/ronnigm/astar_ws/install/robot_description/lib/python3.10/site-packages/robot_description
+byte-compiling /home/ronnigm/astar_ws/install/robot_description/lib/python3.10/site-packages/robot_description/__init__.py to __init__.cpython-310.pyc
+running install_data
+creating /home/ronnigm/astar_ws/install/robot_description/share/ament_index
+creating /home/ronnigm/astar_ws/install/robot_description/share/ament_index/resource_index
+creating /home/ronnigm/astar_ws/install/robot_description/share/ament_index/resource_index/packages
+copying resource/robot_description -> /home/ronnigm/astar_ws/install/robot_description/share/ament_index/resource_index/packages
+copying package.xml -> /home/ronnigm/astar_ws/install/robot_description/share/robot_description
+creating /home/ronnigm/astar_ws/install/robot_description/share/robot_description/urdf
+copying urdf/robot_core_highres.xacro -> /home/ronnigm/astar_ws/install/robot_description/share/robot_description/urdf
+copying urdf/robot.urdf.xacro -> /home/ronnigm/astar_ws/install/robot_description/share/robot_description/urdf
+copying urdf/inertial_macros.xacro -> /home/ronnigm/astar_ws/install/robot_description/share/robot_description/urdf
+creating /home/ronnigm/astar_ws/install/robot_description/share/robot_description/meshes
+copying meshes/rubber4_Link.STL -> /home/ronnigm/astar_ws/install/robot_description/share/robot_description/meshes
+copying meshes/rubber2_Link.STL -> /home/ronnigm/astar_ws/install/robot_description/share/robot_description/meshes
+copying meshes/motor1_Link.STL -> /home/ronnigm/astar_ws/install/robot_description/share/robot_description/meshes
+copying meshes/lidar.dae -> /home/ronnigm/astar_ws/install/robot_description/share/robot_description/meshes
+copying meshes/wheel3_Link.STL -> /home/ronnigm/astar_ws/install/robot_description/share/robot_description/meshes
+copying meshes/motor3_Link.STL -> /home/ronnigm/astar_ws/install/robot_description/share/robot_description/meshes
+copying meshes/motor2_Link.STL -> /home/ronnigm/astar_ws/install/robot_description/share/robot_description/meshes
+copying meshes/base_link.STL -> /home/ronnigm/astar_ws/install/robot_description/share/robot_description/meshes
+copying meshes/wheel1_Link.STL -> /home/ronnigm/astar_ws/install/robot_description/share/robot_description/meshes
+copying meshes/rubber3_Link.STL -> /home/ronnigm/astar_ws/install/robot_description/share/robot_description/meshes
+copying meshes/motor4_Link.STL -> /home/ronnigm/astar_ws/install/robot_description/share/robot_description/meshes
+copying meshes/wheel2_Link.STL -> /home/ronnigm/astar_ws/install/robot_description/share/robot_description/meshes
+copying meshes/rubber1_Link.STL -> /home/ronnigm/astar_ws/install/robot_description/share/robot_description/meshes
+copying meshes/wheel4_Link.STL -> /home/ronnigm/astar_ws/install/robot_description/share/robot_description/meshes
+creating /home/ronnigm/astar_ws/install/robot_description/share/robot_description/launch
+running install_egg_info
+Copying ../../build/robot_description/robot_description.egg-info to /home/ronnigm/astar_ws/install/robot_description/lib/python3.10/site-packages/robot_description-0.0.0-py3.10.egg-info
+running install_scripts
+writing list of installed files to '/home/ronnigm/astar_ws/build/robot_description/install.log'

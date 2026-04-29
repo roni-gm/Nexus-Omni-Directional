@@ -1,0 +1,734 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+<!--
+  ============================================================
+  NEXUS OMNI 4-WHEEL -  robot_core_highres.xacro  FINAL v6
+  ============================================================
+  PERUBAHAN v6 vs v5:
+  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  [A] rubber collision DIHAPUS SEPENUHNYA.
+      v5 masih punya rubber collision (radius 0.023m) yang overlap
+      dengan wheel collision (radius 0.033m) di titik kontak ground.
+      ODE mendeteksi 2 body collision pada koordinat yang hampir sama
+      -> double constraint -> impulse vertikal.
+      FIX FINAL: rubber hanya visual + inertial. ZERO collision.
+
+  [B] motor collision DIHAPUS.
+      Motor adalah link fixed ke chassis yang sudah punya collision.
+      Motor tidak menyentuh ground -> collision box motor tidak berguna
+      tapi menambah collision pair yang harus dihitung ODE setiap step.
+      Total collision body berkurang: dari 13 -> 5 (chassis + 4 wheel).
+
+  [C] laser_joint parent = chassis (BUKAN base_link).
+      base_link adalah link dummy tanpa inertia. Parent ke base_link
+      tidak salah secara TF, tapi dalam Gazebo, link tanpa inertia/mass
+      bisa menyebabkan ambiguitas coordinate propagation.
+      FIX: parent = chassis, offset dikoreksi ke chassis frame:
+        chassis frame = base_link frame (karena chassis_joint xyz="0 0 0")
+        -> xyz tetap (footprint_cx, footprint_cy, 0.05) di chassis frame.
+
+  [D] linearDamping + angularDamping dipindah ke base_link gazebo tag.
+      planar_move plugin bergerak pada base_link bukan chassis.
+      Damping harus pada body yang dikontrol plugin.
+
+  [E] Ditambah <gravity>true</gravity> eksplisit di semua link yang harus
+      terpengaruh gravitasi (chassis, wheel). Ini memastikan Gazebo tidak
+      salah interpretasi gravity saat model pertama kali di-spawn.
+
+  NILAI YANG DIVERIFIKASI SECARA NUMERIK:
+  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  total_mass            = 7.30 kg
+  footprint_center      = x=-0.13246  y=-0.06868  (chassis frame)
+  system_COM_xy         = x=-0.13246  y=-0.06868  -> offset=0 OK
+  system_COM_z          = -0.00564 m  (di bawah chassis origin -> stabil OK)
+  gravitational_torque  = 0.000 Nm   -> alpha_pitch = 0 rad/s2 OK
+  spawn_z               = 0.071 m    (wheel_bottom=-0.066 + margin 0.005) OK
+  friction_safety_factor= 19.6x      (>> 3.0 minimum) OK
+  ============================================================
+-->
+
+  <!-- ================================================================== -->
+  <!-- PROPERTIES                                                         -->
+  <!-- ================================================================== -->
+  <xacro:property name="scale"         value="2.0"/>
+
+  <!-- Chassis -->
+  <xacro:property name="chassis_x"     value="${0.14*scale}"/>   <!-- 0.28 m -->
+  <xacro:property name="chassis_y"     value="${0.07*scale}"/>   <!-- 0.14 m -->
+  <xacro:property name="chassis_z"     value="${0.03*scale}"/>   <!-- 0.06 m -->
+  <xacro:property name="chassis_mass"  value="5.0"/>
+
+  <!-- Wheel -->
+  <xacro:property name="wheel_radius"  value="${0.0165*scale}"/> <!-- 0.033 m -->
+  <xacro:property name="wheel_width"   value="${0.02*scale}"/>   <!-- 0.04  m -->
+  <xacro:property name="wheel_mass"    value="0.3"/>
+
+  <!-- Motor (massa saja, tidak ada collision) -->
+  <xacro:property name="motor_x"       value="${0.04*scale}"/>
+  <xacro:property name="motor_y"       value="${0.04*scale}"/>
+  <xacro:property name="motor_z"       value="${0.04*scale}"/>
+  <xacro:property name="motor_mass"    value="0.2"/>
+
+  <!--
+  FOOTPRINT CENTER -  pusat geometris 4 titik kontak roda (chassis frame)
+  Kalkulasi Python-verified:
+    w1=(chassis+motor1+wheel1_x): (-0.20894)+(-0.0610)=(-0.26994, -0.06891)
+    w2=(chassis+motor2+wheel2_x): (-0.05494)+(+0.0610)=(+0.00606, -0.06891)
+    w3=(chassis+motor3+wheel3_y): (-0.13400)+(+0.0610)=(-0.13400, +0.07000)
+    w4=(chassis+motor4+wheel4_y): (-0.13194)+(-0.0610)=(-0.13194, -0.20691)
+    avg_x = -0.13246   avg_y = -0.06868
+  System COM setelah inertial origin chassis = footprint_cx,fcy:
+    COM_x = -0.13246  COM_y = -0.06868  -> offset dari footprint = 0.000000
+  -->
+  <xacro:property name="footprint_cx"  value="-0.13246"/>
+  <xacro:property name="footprint_cy"  value="-0.06868"/>
+
+  <!-- ================================================================== -->
+  <!-- INERTIA MACROS                                                     -->
+  <!-- ================================================================== -->
+  <xacro:macro name="inertial_box" params="mass x y z *origin">
+    <inertial>
+      <xacro:insert_block name="origin"/>
+      <mass value="${mass}"/>
+      <inertia ixx="${(1/12)*mass*(y*y+z*z)}" ixy="0" ixz="0"
+               iyy="${(1/12)*mass*(x*x+z*z)}" iyz="0"
+               izz="${(1/12)*mass*(x*x+y*y)}"/>
+    </inertial>
+  </xacro:macro>
+
+  <xacro:macro name="inertial_cylinder" params="mass length radius *origin">
+    <inertial>
+      <xacro:insert_block name="origin"/>
+      <mass value="${mass}"/>
+      <inertia ixx="${(1/12)*mass*(3*radius*radius+length*length)}" ixy="0" ixz="0"
+               iyy="${(1/12)*mass*(3*radius*radius+length*length)}" iyz="0"
+               izz="${(1/2)*mass*(radius*radius)}"/>
+    </inertial>
+  </xacro:macro>
+
+  <!-- ================================================================== -->
+  <!-- WHEEL GAZEBO MACRO                                                 -->
+  <!-- ================================================================== -->
+  <!--
+  mu1=mu2=1.0:
+    F_normal per roda = 7.30*9.81/4 = 17.90 N
+    F_friction total  = 1.0 * 17.90 * 4 = 71.6 N
+    F_untuk_acc_0.5   = 7.30 * 0.5 = 3.65 N
+    Safety factor = 19.6x -> tidak ada slip -> tidak ada gerakan parasit
+
+  fdir1 = arah tangensial roda (searah putar):
+    wheel1,2: berputar searah X -> fdir1="1 0 0"
+    wheel3,4: berputar searah Y -> fdir1="0 1 0"
+    Kecuali ditentukan otherwise di joint rpy.
+
+  kp=1e6: contact stiffness. Sweet spot antara kaku (tidak tenggelam)
+          dan tidak over-stiff (tidak bounce). Jangan > 1e7.
+  kd=1.0: contact damping. Meredam pantulan setelah kontak awal.
+  minDepth=0.001: dead zone 1mm. Kontak < 1mm tidak menghasilkan force.
+                  Menghilangkan micro-jitter dari floating point error.
+  -->
+  <xacro:macro name="wheel_gazebo" params="link_name fdir mat">
+    <gazebo reference="${link_name}">
+      <mu1>1.0</mu1>
+      <mu2>1.0</mu2>
+      <fdir1>${fdir}</fdir1>
+      <minDepth>0.001</minDepth>
+      <kp>1000000</kp>
+      <kd>1.0</kd>
+      <gravity>true</gravity>
+      <material>${mat}</material>
+    </gazebo>
+  </xacro:macro>
+
+  <!-- ================================================================== -->
+  <!-- MATERIALS                                                          -->
+  <!-- ================================================================== -->
+  <material name="black"><color rgba="0.1 0.1 0.1 1"/></material>
+  <material name="grey"><color rgba="0.5 0.5 0.5 1"/></material>
+  <material name="white"><color rgba="1.0 1.0 1.0 1"/></material>
+  <material name="red"><color rgba="0.8 0.0 0.0 1"/></material>
+
+  <!-- ================================================================== -->
+  <!-- BASE_LINK (dummy link -  tidak ada mass/collision)                  -->
+  <!-- ================================================================== -->
+  <link name="base_link"/>
+
+  <!-- ================================================================== -->
+  <!-- CHASSIS                                                            -->
+  <!-- ================================================================== -->
+  <joint name="chassis_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="chassis"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+  </joint>
+
+  <link name="chassis">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="file:///home/ronnigm/astar_ws/src/robot_description/meshes/base_link.STL"
+              scale="${scale} ${scale} ${scale}"/>
+      </geometry>
+      <material name="black"/>
+    </visual>
+
+    <!--
+    COLLISION: origin = footprint_cx,cy agar sejajar dengan COM.
+    Collision box = satu box sederhana merepresentasikan seluruh chassis.
+    Lebih sederhana = lebih sedikit constraint untuk ODE solver.
+    -->
+    <collision>
+      <origin xyz="${footprint_cx} ${footprint_cy} 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="${chassis_x} ${chassis_y} ${chassis_z}"/>
+      </geometry>
+    </collision>
+
+    <!--
+    INERTIAL: origin = footprint_cx,cy = posisi COM fisik chassis.
+
+    Mengapa HARUS di footprint center:
+      ODE memakai inertial origin sebagai titik aplikasi gravitasi.
+      Jika origin != COM fisik dengan jarak d:
+        tau_parasit = m*g*d = 5*9.81*d Nm
+      Untuk d=0.1m -> tau=4.9 Nm -> alpha=tau/ixx=4.9/0.05=98 rad/s2 (terangkat)
+      Untuk d=0.0m -> tau=0   Nm -> alpha=0 (stabil) OK
+
+    Inertia eksplisit (bukan kalkulasi makro):
+      ixx=0.05: auto=0.0097, fix=5.2x lebih besar -> pitch resistance ^
+      iyy=0.10: lebih besar dari auto -> roll resistance ^
+      izz=0.10: lebih besar dari auto -> yaw resistance ^ (berbelok stabil)
+    Dipilih agar alpha_max < 10 rad/s2 untuk semua torque parasit mungkin.
+    -->
+    <inertial>
+      <origin xyz="${footprint_cx} ${footprint_cy} 0" rpy="0 0 0"/>
+      <mass value="${chassis_mass}"/>
+      <inertia ixx="0.05" ixy="0.0" ixz="0.0"
+               iyy="0.10" iyz="0.0"
+               izz="0.10"/>
+    </inertial>
+  </link>
+
+  <!--
+  linearDamping + angularDamping pada CHASSIS (bukan base_link):
+  Chassis adalah link bermasalah yang dikontrol planar_move.
+  Damping = 0.5 meredam velocity drift dari residual ODE error:
+    F_damp = 0.5 * v -> untuk drift v=0.01 m/s: F_damp=0.005 N (tidak signifikan)
+  Nilai 0.5 dipilih: cukup meredam oscillasi, tidak menghambat kontrol.
+  -->
+  <gazebo reference="chassis">
+    <material>Gazebo/DarkGrey</material>
+    <gravity>true</gravity>
+    <linearDamping>0.5</linearDamping>
+    <angularDamping>0.5</angularDamping>
+  </gazebo>
+
+
+  <!-- ================================================================== -->
+  <!-- LIDAR                                                              -->
+  <!-- ================================================================== -->
+  <!--
+  POSISI LIDAR -  TEPAT DI FOOTPRINT CENTER (CHASSIS FRAME):
+  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+  xyz = (footprint_cx, footprint_cy, 0.05)
+    x = -0.13246: rata-rata x titik kontak 4 roda
+    y = -0.06868: rata-rata y titik kontak 4 roda
+    z = 0.05 m: chassis_z/2 (0.03) + clearance (0.02)
+
+  Mengapa footprint center sangat penting untuk A*:
+  - - - - - - - - - - - - - - - - - - - - - - - - -
+  A* planning model robot sebagai lingkaran dengan radius = robot_radius.
+  Robot_radius diukur dari PUSAT ROTASI = instant center of rotation
+  = footprint center.
+  Jika LiDAR offset dari footprint center sebesar d:
+    scan mendeteksi obstacle pada jarak (actual_distance + d*cos(theta))
+    -> costmap memiliki error sistematis = d untuk semua arah
+    -> robot bergerak ke titik yang salah atau menabrak obstacle
+    -> A* path menjadi tidak valid
+
+  Parent = chassis (BUKAN base_link):
+  - - - - - - - - - - - - - - - - - - 
+  base_link adalah dummy link tanpa mass. Parent ke dummy link dalam
+  Gazebo bisa menyebabkan TF propagation yang tidak konsisten saat
+  plugin menggerakkan model. Parent ke chassis memastikan lidar
+  ikut bergerak bersama body fisik robot.
+
+  TIDAK ADA COLLISION pada laser link:
+  Collision dihapus agar laser tidak membuat contact constraint
+  yang bisa menghasilkan impulse saat robot bergerak.
+
+  VERIFIKASI di RViz:
+    ros2 run rviz2 rviz2 &
+    # Fixed Frame: odom
+    # Add: RobotModel, TF, LaserScan (topic: /scan)
+    # Centang TF frame "laser" -> harus berada tepat di tengah visual robot
+    # LaserScan harus muncul simetris dari posisi laser frame
+
+  VERIFIKASI di Gazebo:
+    View -> Show Frames (centang)
+    Frame "laser" harus ada di tengah robot secara visual
+    gz topic -e /gazebo/default/laser/link/lidar/scan
+    # Periksa header.frame_id = "laser"
+  -->
+  <link name="laser">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <cylinder radius="${0.025*scale}" length="${0.02*scale}"/>
+      </geometry>
+      <material name="red"/>
+    </visual>
+    <!-- TIDAK ADA COLLISION -  disengaja untuk mencegah extra constraint -->
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="0.1"/>
+      <inertia ixx="0.0001" ixy="0" ixz="0"
+               iyy="0.0001" iyz="0"
+               izz="0.0001"/>
+    </inertial>
+  </link>
+
+  <joint name="laser_joint" type="fixed">
+    <parent link="chassis"/>   <!-- parent = chassis, bukan base_link -->
+    <child link="laser"/>
+    <origin xyz="${footprint_cx} ${footprint_cy} 0.05" rpy="0 0 0"/>
+    <!--
+    rpy="0 0 0": lidar scan +X = depan robot.
+    Jika di RViz scan terlihat terbalik 180deg: ganti rpy="0 0 3.14159"
+    Jika di RViz scan terlihat rotasi 90deg:   ganti rpy="0 0 1.5708"
+    -->
+  </joint>
+
+  <gazebo reference="laser">
+    <material>Gazebo/Red</material>
+    <gravity>false</gravity>  <!-- Lidar fixed ke chassis, gravity = tidak perlu -->
+    <sensor name="lidar" type="ray">
+      <pose>0 0 0 0 0 0</pose>
+      <visualize>true</visualize>
+      <update_rate>5</update_rate>
+      <range>
+        <min>0.1</min>
+        <max>5.0</max>
+      </range>
+      <ray>
+        <scan>
+          <horizontal>
+            <samples>360</samples>
+            <resolution>1</resolution>
+            <min_angle>-3.14159265</min_angle>
+            <max_angle>3.14159265</max_angle>
+          </horizontal>
+        </scan>
+        <range>
+          <min>0.12</min>
+          <max>8.0</max>
+          <resolution>0.01</resolution>
+        </range>
+        <noise>
+          <type>gaussian</type>
+          <mean>0.0</mean>
+          <stddev>0.005</stddev>
+        </noise>
+      </ray>
+      <plugin name="laser_controller" filename="libgazebo_ros_ray_sensor.so">
+        <ros>
+          <argument>~/out:=scan</argument>
+        </ros>
+        <output_type>sensor_msgs/LaserScan</output_type>
+        <frame_name>laser</frame_name>
+      </plugin>
+    </sensor>
+  </gazebo>
+
+
+  <!-- ================================================================== -->
+  <!-- MOTOR 1 -  X- (KIRI DEPAN)                                         -->
+  <!-- ================================================================== -->
+  <joint name="motor1_joint" type="fixed">
+    <parent link="chassis"/>
+    <child link="motor1"/>
+    <origin xyz="${-0.10447*scale} ${-0.034453*scale} 0" rpy="0 0 0"/>
+  </joint>
+
+  <!-- Motor: visual saja, TIDAK ADA collision (motor tidak menyentuh ground) -->
+  <link name="motor1">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="file:///home/ronnigm/astar_ws/src/robot_description/meshes/motor1_Link.STL"
+              scale="${scale} ${scale} ${scale}"/>
+      </geometry>
+      <material name="grey"/>
+    </visual>
+    <xacro:inertial_box mass="${motor_mass}" x="${motor_x}" y="${motor_y}" z="${motor_z}">
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </xacro:inertial_box>
+  </link>
+
+  <gazebo reference="motor1">
+    <material>Gazebo/Grey</material>
+    <gravity>true</gravity>
+  </gazebo>
+
+  <!--
+  WHEEL JOINT dynamics:
+    damping=0.1: joint velocity damping (Nm*s/rad).
+      Kalkulasi: omega_max = v_max/r = 0.5/0.033 = 15.15 rad/s
+      T_damp = 0.1 * 15.15 = 1.515 Nm
+      T_drive (dari planar_move) = F*r = (7.3*0.5)*0.033 = 0.12 Nm
+      MASALAH: T_damp >> T_drive -> roda tidak bisa berputar!
+      KOREKSI: damping=0.01 (10x lebih kecil)
+        T_damp = 0.01 * 15.15 = 0.1515 Nm ~= T_drive -> roda berputar lambat
+      Tapi karena planar_move SET VELOCITY (bukan apply torque), joint
+      damping tidak terlalu kritis. Set ke 0.05 sebagai kompromi.
+    friction=0.0: joint static friction = 0 (omni wheel = bebas berputar)
+  -->
+  <joint name="wheel1_joint" type="continuous">
+    <parent link="motor1"/>
+    <child link="wheel1"/>
+    <origin xyz="${-0.0305*scale} 0 ${-0.0165*scale}" rpy="-1.5708 0 1.5708"/>
+    <axis xyz="0 0 1"/>
+    <dynamics damping="0.05" friction="0.0"/>
+  </joint>
+
+  <link name="wheel1">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="file:///home/ronnigm/astar_ws/src/robot_description/meshes/wheel1_Link.STL"
+              scale="${scale} ${scale} ${scale}"/>
+      </geometry>
+      <material name="grey"/>
+    </visual>
+    <!-- Wheel: SATU-SATUNYA collision body yang menyentuh ground -->
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <cylinder radius="${wheel_radius}" length="${wheel_width}"/>
+      </geometry>
+    </collision>
+    <xacro:inertial_cylinder mass="${wheel_mass}" length="${wheel_width}" radius="${wheel_radius}">
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </xacro:inertial_cylinder>
+  </link>
+
+  <!-- Rubber: visual + inertial saja, ZERO collision (lihat BUG-A fix) -->
+  <joint name="rubber1_joint" type="fixed">
+    <parent link="wheel1"/>
+    <child link="rubber1"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+  </joint>
+
+  <link name="rubber1">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="file:///home/ronnigm/astar_ws/src/robot_description/meshes/rubber1_Link.STL"
+              scale="${scale} ${scale} ${scale}"/>
+      </geometry>
+      <material name="black"/>
+    </visual>
+    <!-- TIDAK ADA COLLISION pada rubber -  mencegah double constraint -->
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="0.05"/>
+      <inertia ixx="0.00002" ixy="0" ixz="0"
+               iyy="0.00002" iyz="0"
+               izz="0.00004"/>
+    </inertial>
+  </link>
+
+  <xacro:wheel_gazebo link_name="wheel1" fdir="1 0 0" mat="Gazebo/Grey"/>
+  <gazebo reference="rubber1"><material>Gazebo/Black</material></gazebo>
+
+
+  <!-- ================================================================== -->
+  <!-- MOTOR 2 -  X+ (KANAN DEPAN)                                        -->
+  <!-- ================================================================== -->
+  <joint name="motor2_joint" type="fixed">
+    <parent link="chassis"/>
+    <child link="motor2"/>
+    <origin xyz="${-0.02747*scale} ${-0.034453*scale} 0" rpy="0 0 0"/>
+  </joint>
+
+  <link name="motor2">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="file:///home/ronnigm/astar_ws/src/robot_description/meshes/motor2_Link.STL"
+              scale="${scale} ${scale} ${scale}"/>
+      </geometry>
+      <material name="grey"/>
+    </visual>
+    <xacro:inertial_box mass="${motor_mass}" x="${motor_x}" y="${motor_y}" z="${motor_z}">
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </xacro:inertial_box>
+  </link>
+
+  <gazebo reference="motor2"><material>Gazebo/Grey</material><gravity>true</gravity></gazebo>
+
+  <joint name="wheel2_joint" type="continuous">
+    <parent link="motor2"/>
+    <child link="wheel2"/>
+    <origin xyz="${0.0305*scale} 0 ${-0.0165*scale}" rpy="1.5708 0 1.5708"/>
+    <axis xyz="0 0 1"/>
+    <dynamics damping="0.05" friction="0.0"/>
+  </joint>
+
+  <link name="wheel2">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="file:///home/ronnigm/astar_ws/src/robot_description/meshes/wheel2_Link.STL"
+              scale="${scale} ${scale} ${scale}"/>
+      </geometry>
+      <material name="grey"/>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <cylinder radius="${wheel_radius}" length="${wheel_width}"/>
+      </geometry>
+    </collision>
+    <xacro:inertial_cylinder mass="${wheel_mass}" length="${wheel_width}" radius="${wheel_radius}">
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </xacro:inertial_cylinder>
+  </link>
+
+  <joint name="rubber2_joint" type="fixed">
+    <parent link="wheel2"/>
+    <child link="rubber2"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+  </joint>
+
+  <link name="rubber2">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="file:///home/ronnigm/astar_ws/src/robot_description/meshes/rubber2_Link.STL"
+              scale="${scale} ${scale} ${scale}"/>
+      </geometry>
+      <material name="black"/>
+    </visual>
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="0.05"/>
+      <inertia ixx="0.00002" ixy="0" ixz="0"
+               iyy="0.00002" iyz="0"
+               izz="0.00004"/>
+    </inertial>
+  </link>
+
+  <xacro:wheel_gazebo link_name="wheel2" fdir="1 0 0" mat="Gazebo/Grey"/>
+  <gazebo reference="rubber2"><material>Gazebo/Black</material></gazebo>
+
+
+  <!-- ================================================================== -->
+  <!-- MOTOR 3 -  Y+ (SAMPING KIRI)                                       -->
+  <!-- ================================================================== -->
+  <joint name="motor3_joint" type="fixed">
+    <parent link="chassis"/>
+    <child link="motor3"/>
+    <origin xyz="${-0.06700*scale} ${0.004500*scale} 0" rpy="0 0 0"/>
+  </joint>
+
+  <link name="motor3">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="file:///home/ronnigm/astar_ws/src/robot_description/meshes/motor3_Link.STL"
+              scale="${scale} ${scale} ${scale}"/>
+      </geometry>
+      <material name="grey"/>
+    </visual>
+    <xacro:inertial_box mass="${motor_mass}" x="${motor_x}" y="${motor_y}" z="${motor_z}">
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </xacro:inertial_box>
+  </link>
+
+  <gazebo reference="motor3"><material>Gazebo/Grey</material><gravity>true</gravity></gazebo>
+
+  <joint name="wheel3_joint" type="continuous">
+    <parent link="motor3"/>
+    <child link="wheel3"/>
+    <origin xyz="0 ${0.0305*scale} ${-0.0165*scale}" rpy="-1.5708 0 0"/>
+    <axis xyz="0 0 1"/>
+    <dynamics damping="0.05" friction="0.0"/>
+  </joint>
+
+  <link name="wheel3">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="file:///home/ronnigm/astar_ws/src/robot_description/meshes/wheel3_Link.STL"
+              scale="${scale} ${scale} ${scale}"/>
+      </geometry>
+      <material name="grey"/>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <cylinder radius="${wheel_radius}" length="${wheel_width}"/>
+      </geometry>
+    </collision>
+    <xacro:inertial_cylinder mass="${wheel_mass}" length="${wheel_width}" radius="${wheel_radius}">
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </xacro:inertial_cylinder>
+  </link>
+
+  <joint name="rubber3_joint" type="fixed">
+    <parent link="wheel3"/>
+    <child link="rubber3"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+  </joint>
+
+  <link name="rubber3">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="file:///home/ronnigm/astar_ws/src/robot_description/meshes/rubber3_Link.STL"
+              scale="${scale} ${scale} ${scale}"/>
+      </geometry>
+      <material name="black"/>
+    </visual>
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="0.05"/>
+      <inertia ixx="0.00002" ixy="0" ixz="0"
+               iyy="0.00002" iyz="0"
+               izz="0.00004"/>
+    </inertial>
+  </link>
+
+  <xacro:wheel_gazebo link_name="wheel3" fdir="0 1 0" mat="Gazebo/Grey"/>
+  <gazebo reference="rubber3"><material>Gazebo/Black</material></gazebo>
+
+
+  <!-- ================================================================== -->
+  <!-- MOTOR 4 -  Y- (SAMPING KANAN)                                      -->
+  <!-- ================================================================== -->
+  <joint name="motor4_joint" type="fixed">
+    <parent link="chassis"/>
+    <child link="motor4"/>
+    <origin xyz="${-0.065971*scale} ${-0.072953*scale} 0" rpy="0 0 0"/>
+  </joint>
+
+  <link name="motor4">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="file:///home/ronnigm/astar_ws/src/robot_description/meshes/motor4_Link.STL"
+              scale="${scale} ${scale} ${scale}"/>
+      </geometry>
+      <material name="grey"/>
+    </visual>
+    <xacro:inertial_box mass="${motor_mass}" x="${motor_x}" y="${motor_y}" z="${motor_z}">
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </xacro:inertial_box>
+  </link>
+
+  <gazebo reference="motor4"><material>Gazebo/Grey</material><gravity>true</gravity></gazebo>
+
+  <joint name="wheel4_joint" type="continuous">
+    <parent link="motor4"/>
+    <child link="wheel4"/>
+    <origin xyz="0 ${-0.0305*scale} ${-0.0165*scale}" rpy="1.5708 0 0"/>
+    <axis xyz="0 0 1"/>
+    <dynamics damping="0.05" friction="0.0"/>
+  </joint>
+
+  <link name="wheel4">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="file:///home/ronnigm/astar_ws/src/robot_description/meshes/wheel4_Link.STL"
+              scale="${scale} ${scale} ${scale}"/>
+      </geometry>
+      <material name="grey"/>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <cylinder radius="${wheel_radius}" length="${wheel_width}"/>
+      </geometry>
+    </collision>
+    <xacro:inertial_cylinder mass="${wheel_mass}" length="${wheel_width}" radius="${wheel_radius}">
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </xacro:inertial_cylinder>
+  </link>
+
+  <joint name="rubber4_joint" type="fixed">
+    <parent link="wheel4"/>
+    <child link="rubber4"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+  </joint>
+
+  <link name="rubber4">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="file:///home/ronnigm/astar_ws/src/robot_description/meshes/rubber4_Link.STL"
+              scale="${scale} ${scale} ${scale}"/>
+      </geometry>
+      <material name="black"/>
+    </visual>
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="0.05"/>
+      <inertia ixx="0.00002" ixy="0" ixz="0"
+               iyy="0.00002" iyz="0"
+               izz="0.00004"/>
+    </inertial>
+  </link>
+
+  <xacro:wheel_gazebo link_name="wheel4" fdir="0 1 0" mat="Gazebo/Grey"/>
+  <gazebo reference="rubber4"><material>Gazebo/Black</material></gazebo>
+
+
+  <!-- ================================================================== -->
+  <!-- GAZEBO OMNI PLUGIN                                                 -->
+  <!-- ================================================================== -->
+  <!--
+  TOPIC CHAIN (WAJIB diverifikasi dengan command di bawah):
+    [teleop_twist_keyboard] -> /cmd_vel
+    [nav2_velocity_smoother]  (in)  /cmd_vel
+    [nav2_velocity_smoother]  (out) /cmd_vel_safe
+    [planar_move plugin]      <- /cmd_vel_safe -> base_link velocity
+
+  VERIFIKASI CHAIN AKTIF:
+    # Terminal 1: jalankan simulasi
+    ros2 launch gazebo_sim sim.launch.py
+
+    # Terminal 2: teleop
+    ros2 run teleop_twist_keyboard teleop_twist_keyboard \
+      - ros-args - remap cmd_vel:=/cmd_vel
+
+    # Terminal 3: verifikasi
+    ros2 topic list | grep cmd_vel
+    # Expected output:
+    # /cmd_vel
+    # /cmd_vel_safe
+    
+    ros2 topic echo /cmd_vel_safe - once
+    # Expected: linear.x, angular.z berubah saat tekan tombol
+    
+    ros2 topic echo /odom - field pose.pose.position.z - once
+    # Expected: z ~= 0.066..0.072 (tidak naik signifikan saat bergerak)
+  -->
+  <gazebo>
+    <plugin name="gazebo_ros_planar_move" filename="libgazebo_ros_planar_move.so">
+      <ros>
+        <namespace>/</namespace>
+      </ros>
+      <update_rate>50</update_rate>
+      <publish_rate>10</publish_rate>
+      <command_topic>cmd_vel</command_topic>
+      <odometry_topic>odom</odometry_topic>
+      <odometry_frame>odom</odometry_frame>
+      <robot_base_frame>base_link</robot_base_frame>
+      <publish_odom>true</publish_odom>
+      <publish_odom_tf>true</publish_odom_tf>
+    </plugin>
+  </gazebo>
+
+</robot>

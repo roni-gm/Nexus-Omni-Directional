@@ -1,0 +1,52 @@
+[1.158s] Invoking command in '/home/ronnigm/astar_ws/src/robot_description': PYTHONPATH=/home/ronnigm/astar_ws/build/robot_description/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/ronnigm/astar_ws/install/robot_description/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../build/robot_description build --build-base /home/ronnigm/astar_ws/build/robot_description/build install --record /home/ronnigm/astar_ws/build/robot_description/install.log --single-version-externally-managed install_data
+[1.376s] running egg_info
+[1.376s] creating ../../build/robot_description/robot_description.egg-info
+[1.376s] writing ../../build/robot_description/robot_description.egg-info/PKG-INFO
+[1.377s] writing dependency_links to ../../build/robot_description/robot_description.egg-info/dependency_links.txt
+[1.377s] writing requirements to ../../build/robot_description/robot_description.egg-info/requires.txt
+[1.377s] writing top-level names to ../../build/robot_description/robot_description.egg-info/top_level.txt
+[1.377s] writing manifest file '../../build/robot_description/robot_description.egg-info/SOURCES.txt'
+[1.379s] reading manifest file '../../build/robot_description/robot_description.egg-info/SOURCES.txt'
+[1.379s] writing manifest file '../../build/robot_description/robot_description.egg-info/SOURCES.txt'
+[1.379s] running build
+[1.379s] running build_py
+[1.379s] creating /home/ronnigm/astar_ws/build/robot_description/build
+[1.379s] creating /home/ronnigm/astar_ws/build/robot_description/build/lib
+[1.380s] creating /home/ronnigm/astar_ws/build/robot_description/build/lib/robot_description
+[1.380s] copying robot_description/__init__.py -> /home/ronnigm/astar_ws/build/robot_description/build/lib/robot_description
+[1.380s] running install
+[1.380s] running install_lib
+[1.381s] creating /home/ronnigm/astar_ws/install/robot_description/lib/python3.10/site-packages/robot_description
+[1.381s] copying /home/ronnigm/astar_ws/build/robot_description/build/lib/robot_description/__init__.py -> /home/ronnigm/astar_ws/install/robot_description/lib/python3.10/site-packages/robot_description
+[1.381s] byte-compiling /home/ronnigm/astar_ws/install/robot_description/lib/python3.10/site-packages/robot_description/__init__.py to __init__.cpython-310.pyc
+[1.381s] running install_data
+[1.381s] creating /home/ronnigm/astar_ws/install/robot_description/share/ament_index
+[1.381s] creating /home/ronnigm/astar_ws/install/robot_description/share/ament_index/resource_index
+[1.381s] creating /home/ronnigm/astar_ws/install/robot_description/share/ament_index/resource_index/packages
+[1.382s] copying resource/robot_description -> /home/ronnigm/astar_ws/install/robot_description/share/ament_index/resource_index/packages
+[1.382s] copying package.xml -> /home/ronnigm/astar_ws/install/robot_description/share/robot_description
+[1.382s] creating /home/ronnigm/astar_ws/install/robot_description/share/robot_description/urdf
+[1.382s] copying urdf/robot_core_highres.xacro -> /home/ronnigm/astar_ws/install/robot_description/share/robot_description/urdf
+[1.382s] copying urdf/robot.urdf.xacro -> /home/ronnigm/astar_ws/install/robot_description/share/robot_description/urdf
+[1.382s] copying urdf/inertial_macros.xacro -> /home/ronnigm/astar_ws/install/robot_description/share/robot_description/urdf
+[1.382s] creating /home/ronnigm/astar_ws/install/robot_description/share/robot_description/meshes
+[1.382s] copying meshes/rubber4_Link.STL -> /home/ronnigm/astar_ws/install/robot_description/share/robot_description/meshes
+[1.385s] copying meshes/rubber2_Link.STL -> /home/ronnigm/astar_ws/install/robot_description/share/robot_description/meshes
+[1.389s] copying meshes/motor1_Link.STL -> /home/ronnigm/astar_ws/install/robot_description/share/robot_description/meshes
+[1.390s] copying meshes/lidar.dae -> /home/ronnigm/astar_ws/install/robot_description/share/robot_description/meshes
+[1.391s] copying meshes/wheel3_Link.STL -> /home/ronnigm/astar_ws/install/robot_description/share/robot_description/meshes
+[1.396s] copying meshes/motor3_Link.STL -> /home/ronnigm/astar_ws/install/robot_description/share/robot_description/meshes
+[1.397s] copying meshes/motor2_Link.STL -> /home/ronnigm/astar_ws/install/robot_description/share/robot_description/meshes
+[1.398s] copying meshes/base_link.STL -> /home/ronnigm/astar_ws/install/robot_description/share/robot_description/meshes
+[1.398s] copying meshes/wheel1_Link.STL -> /home/ronnigm/astar_ws/install/robot_description/share/robot_description/meshes
+[1.404s] copying meshes/rubber3_Link.STL -> /home/ronnigm/astar_ws/install/robot_description/share/robot_description/meshes
+[1.407s] copying meshes/motor4_Link.STL -> /home/ronnigm/astar_ws/install/robot_description/share/robot_description/meshes
+[1.408s] copying meshes/wheel2_Link.STL -> /home/ronnigm/astar_ws/install/robot_description/share/robot_description/meshes
+[1.414s] copying meshes/rubber1_Link.STL -> /home/ronnigm/astar_ws/install/robot_description/share/robot_description/meshes
+[1.417s] copying meshes/wheel4_Link.STL -> /home/ronnigm/astar_ws/install/robot_description/share/robot_description/meshes
+[1.423s] creating /home/ronnigm/astar_ws/install/robot_description/share/robot_description/launch
+[1.423s] running install_egg_info
+[1.425s] Copying ../../build/robot_description/robot_description.egg-info to /home/ronnigm/astar_ws/install/robot_description/lib/python3.10/site-packages/robot_description-0.0.0-py3.10.egg-info
+[1.425s] running install_scripts
+[1.441s] writing list of installed files to '/home/ronnigm/astar_ws/build/robot_description/install.log'
+[1.466s] Invoked command in '/home/ronnigm/astar_ws/src/robot_description' returned '0': PYTHONPATH=/home/ronnigm/astar_ws/build/robot_description/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/ronnigm/astar_ws/install/robot_description/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../build/robot_description build --build-base /home/ronnigm/astar_ws/build/robot_description/build install --record /home/ronnigm/astar_ws/build/robot_description/install.log --single-version-externally-managed install_data
